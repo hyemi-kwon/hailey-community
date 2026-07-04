@@ -1,0 +1,15 @@
+.gradle/
+.idea/
+build/
+out/
+*.class
+*.log
+.DS_Store
+
+### Gradle ###
+!gradle/wrapper/gradle-wrapper.jar
+
+### Environment ###
+.env
+application-local.yml
+application-secret.yml

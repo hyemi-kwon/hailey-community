@@ -1,0 +1,35 @@
+# Environment / secrets
+.env
+*.env
+**/.env
+**/*.env
+application-secret.yml
+**/application-secret.yml
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+build/
+**/build/
+dist/
+**/dist/
+out/
+**/out/
+.gradle/
+**/.gradle/
+
+# IDE / OS
+.idea/
+**/.idea/
+.DS_Store
+**/.DS_Store
+
+# Logs / coverage
+*.log
+coverage/
+**/coverage/
+
+# Local request scratch files
+*.http

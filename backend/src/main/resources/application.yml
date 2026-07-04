@@ -1,0 +1,26 @@
+# yml은 계층 구조를 가진다. 들여쓰기(띄어쓰기2번 또는 탭1번)으로 부모자식 관계를 나타낸다.
+# 콜론(:)뒤에는 무조건 한칸 띄우기, 계층끼리 들여쓰기 맞추기
+spring:
+  application:
+    name: hailey-project
+
+  config:
+    import: optional:application-secret.yml
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL드라이브. 각 디비별로 드라이브패키지경로 찾아서 쓰면됨
+
+  jpa:
+    hibernate:
+      ddl-auto: update # 5가지 옵션 있다 : create-drop,create,update,none,validate
+                       #!! : 운영직전이나 운영서버는 데이터변경없도록 validate, none를 사용한다.
+    properties:
+      hibernate:
+        show_sql: true  # 실행되는 SQL 콘솔에 보여줌
+        format_sql: true # show_sql로 실행된 SQL을 가독성 좋게 줄바꿔서 보여줌
+
+# 스프링부트는 톰캣이 내장되어 있어서 web서버가 없어도 web을 쓸 수 있다.
+server:
+  port: 8090 # 기본 포트는 8080이지만, 다른 프로그램과 충돌을 피하기 위해 8090으로 지정함
+  servlet:
+    context-path: /v1
