@@ -202,9 +202,10 @@ const addEventForInputElements = () => {
                 changeEventHandler(event, id),
             );
         } else {
-            element.addEventListener('input', event =>
+            element.addEventListener('focusout', event =>
                 inputEventHandler(event, id),
             );
+
         }
     });
 };
