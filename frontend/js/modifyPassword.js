@@ -89,7 +89,7 @@ const addEventForInputElements = () => {
     InputElement.forEach(element => {
         const id = element.id;
 
-        element.addEventListener('input', event => blurEventHandler(event, id));
+        element.addEventListener('focusout', event => blurEventHandler(event, id));
     });
 };
 
