@@ -41,7 +41,7 @@ const sendSignupData = async () => {
         props.profileImageUrl = localStorage.getItem('profileImageUrl');
     }
 
-    if (props.password > MAX_PASSWORD_LENGTH) {
+    if (props.password.length > MAX_PASSWORD_LENGTH) {
         Dialog('비밀번호', '비밀번호는 20자 이하로 입력해주세요.');
         return;
     }
