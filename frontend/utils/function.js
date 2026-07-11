@@ -11,9 +11,11 @@ export const getServerUrl = () => {
     }
 
     const host = window.location.hostname;
-    return host.includes('localhost')
-        ? 'http://localhost:8090'
-        : `http://${host}:8090`;
+    if (host === 'localhost' || host === '127.0.0.1') {
+        return 'http://localhost:8090';
+    }
+
+    throw new Error('API_BASE_URL is required outside local development.');
 };
 
 export const resolveImageUrl = (url, fallback = null) => {

@@ -1,3 +1,6 @@
+# depend 사용 할 경우 health check 하기
+# latest 태그 사용 안함. 깃허브 액션이 동적으로 버전을 쏴줌.
+# 로그회전 설정.
 services:
   mysql:
     image: mysql:8.4
@@ -14,30 +17,43 @@ services:
       retries: 20
 
   backend:
-    build:
-      context: ./backend
+    image: ${DOCKER_HUB_ID}:backend-${IMAGE_TAG}
     container_name: hailey-backend
     depends_on:
       mysql:
         condition: service_healthy
+    # 로그 회전 설정
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"  # 로그 파일 1개가 10MB가 되면 파일 자름
+        max-file: "3"    # 최신 로그 파일 3개만 남기고 삭제
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8090/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-    ports:
-      - "8090:8090"
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8080,http://127.0.0.1:8080}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
 
   frontend:
-    build:
-      context: ./frontend
+    image: ${DOCKER_HUB_ID}:frontend-${IMAGE_TAG}
     container_name: hailey-frontend
     depends_on:
       - backend
+    # 로그 회전 설정
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m" # 로그 파일 1개가 10MB가 되면 파일 자름
+        max-file: "3"   # 최신 로그 파일 3개만 남기고 삭제
     environment:
       PORT: ${FRONTEND_PORT}
       API_BASE_URL: ${API_BASE_URL}
-    ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
 volumes:
   mysql-data:

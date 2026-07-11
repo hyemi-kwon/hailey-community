@@ -24,3 +24,8 @@ server:
   port: 8090 # 기본 포트는 8080이지만, 다른 프로그램과 충돌을 피하기 위해 8090으로 지정함
   servlet:
     context-path: /v1
+    session:
+      cookie:
+        secure: ${SESSION_COOKIE_SECURE:false}
+        http-only: true
+        same-site: lax
