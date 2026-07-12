@@ -1,0 +1,25 @@
+services:
+  backend:
+    image: ${DOCKER_HUB_ID}:backend-${IMAGE_TAG}
+    container_name: hailey-backend
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://hailey.my}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--Duser.timezone=Asia/Seoul}
+    ports:
+      - "${BACKEND_PORT:-8090}:8090"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8090/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"

@@ -1,0 +1,21 @@
+services:
+  frontend:
+    image: ${DOCKER_HUB_ID}:frontend-${IMAGE_TAG}
+    container_name: hailey-frontend
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      API_BASE_URL: ${API_BASE_URL}
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:8080/config.js"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
