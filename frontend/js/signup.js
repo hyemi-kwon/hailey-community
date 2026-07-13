@@ -25,14 +25,57 @@ const signupData = {
     profileImageUrl: undefined,
 };
 
-const getSignupData = () => {
-    const { email, password, passwordCheck, nickname } = signupData;
+const getSignupData = async () => {
+    const email = document.querySelector('#email').value.trim();
+    const password = document.querySelector('#pw').value;
+    const passwordCheck = document.querySelector('#pwck').value;
+    const nickname = document.querySelector('#nickname').value.trim();
+
     if (!email || !password || !passwordCheck || !nickname) {
         Dialog('필수 입력 사항', '모든 값을 입력해주세요.');
-        return false;
+        return;
     }
 
-    sendSignupData();
+    if (!validEmail(email)) {
+        Dialog('이메일', '올바른 이메일 주소 형식을 입력해주세요.');
+        return;
+    }
+
+    if (!validPassword(password)) {
+        Dialog(
+            '비밀번호',
+            '비밀번호는 8~20자이며 대문자, 소문자, 숫자, 특수문자를 모두 포함해야 합니다.',
+        );
+        return;
+    }
+
+    if (password !== passwordCheck) {
+        Dialog('비밀번호', '비밀번호 확인이 일치하지 않습니다.');
+        return;
+    }
+
+    if (!validNickname(nickname)) {
+        Dialog('닉네임', '닉네임은 특수문자 없이 2~10자로 입력해주세요.');
+        return;
+    }
+
+    const [emailResult, nicknameResult] = await Promise.all([
+        checkEmail(email),
+        checkNickname(nickname),
+    ]);
+
+    if (!emailResult.ok) {
+        Dialog('회원 가입 실패', '이미 사용 중인 이메일입니다.');
+        return;
+    }
+
+    if (!nicknameResult.ok) {
+        Dialog('회원 가입 실패', '이미 사용 중인 닉네임입니다.');
+        return;
+    }
+
+    Object.assign(signupData, { email, password, passwordCheck, nickname });
+    await sendSignupData();
 };
 
 const sendSignupData = async () => {
@@ -46,7 +89,7 @@ const sendSignupData = async () => {
         return;
     }
     // signupData를 서버로 전송
-    const { status, code } = await userSignup(props);
+    const { status, code, body } = await userSignup(props);
 
     // 응답이 성공적으로 왔을 경우
     if (status === HTTP_CREATED) {
@@ -60,17 +103,27 @@ const sendSignupData = async () => {
         } else if (code === 'INVALID_INPUT') {
             Dialog('회원 가입 실패', '입력값을 확인해주세요.');
         } else {
-            Dialog('회원 가입 실패', '잠시 뒤 다시 시도해 주세요', () => {});
+            const message =
+                (body && body.data && body.data.error) ||
+                (body && body.message) ||
+                '잠시 뒤 다시 시도해 주세요.';
+            Dialog('회원 가입 실패', message);
         }
-        localStorage.removeItem('profileImageUrl');
-        location.href = '/html/signup.html';
     }
 };
 
 const signupClick = () => {
-    // signup 버튼 클릭 시
     const signupBtn = document.querySelector('#signupBtn');
-    signupBtn.addEventListener('click', getSignupData);
+    signupBtn.addEventListener('click', async event => {
+        event.preventDefault();
+        signupBtn.disabled = true;
+        try {
+            await getSignupData();
+        } finally {
+            signupBtn.disabled = false;
+            observeSignupData();
+        }
+    });
 };
 
 const changeEventHandler = async (event, uid) => {
@@ -223,12 +276,11 @@ const observeSignupData = () => {
         !validNickname(nickname) ||
         !passwordCheck
     ) {
-        button.disabled = true;
         button.style.backgroundColor = '#ACA0EB';
     } else {
-        button.disabled = false;
         button.style.backgroundColor = '#7F6AEE';
     }
+    button.disabled = false;
 };
 
 const uploadProfileImage = () => {
